@@ -201,4 +201,18 @@ suite("Unit Tests", function () {
       done();
     });
   });
+
+  suite(
+    "Function convertHandler.getString(initNum, initUnit, returnNum, returnUnit)",
+    function () {
+      test("5 gallons converts to 18.9271 litres", function (done) {
+        const expected = "5 gallons converts to 18.9271 litres";
+        assert.equal(
+          convertHandler.getString(5, "gal", 18.9271, "l"),
+          expected
+        );
+        done();
+      });
+    }
+  );
 });

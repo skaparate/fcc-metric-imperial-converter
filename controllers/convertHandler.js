@@ -175,7 +175,11 @@ function ConvertHandler() {
     return initNum * lbsToKg;
   };
 
-  this.getString = function (initNum, initUnit, returnNum, returnUnit) {};
+  this.getString = function (initNum, initUnit, returnNum, returnUnit) {
+    return `${initNum} ${this.spellOutUnit(
+      initUnit
+    )} converts to ${returnNum} ${this.spellOutUnit(returnUnit)}`;
+  };
 }
 
 module.exports = ConvertHandler;
