@@ -33,14 +33,9 @@ suite("Unit Tests", function () {
     test("Fractional Input", function (done) {
       const input = ["1/2gal", "2/3l", "3/1lbs", "20/10km"];
       const expected = [0.5, 0.6666666666666666, 3, 2];
-      try {
-        input.forEach(function (input, index) {
-          assert.equal(convertHandler.getNum(input), expected[index]);
-        });
-      } catch (e) {
-        console.error(e);
-        return done(e);
-      }
+      input.forEach(function (input, index) {
+        assert.equal(convertHandler.getNum(input), expected[index]);
+      });
       done();
     });
 
@@ -55,9 +50,7 @@ suite("Unit Tests", function () {
 
     test("Invalid Input (double fraction)", function (done) {
       const input = "1/2/3gal";
-      assert.throws(() => {
-        convertHandler.getNum(input);
-      }, "invalid number");
+      assert.equal(convertHandler.getNum(input), "invalid number");
       done();
     });
 
@@ -93,9 +86,7 @@ suite("Unit Tests", function () {
 
     test("Unknown Unit Input", function (done) {
       const input = "kb";
-      assert.throws(function () {
-        convertHandler.getUnit(input);
-      }, "invalid unit");
+      assert.equal(convertHandler.getUnit(input), "invalid unit");
       done();
     });
   });
@@ -133,16 +124,11 @@ suite("Unit Tests", function () {
     test("Gal to L", function (done) {
       const input = [5, "gal"];
       const expected = 18.9271;
-      try {
-        assert.approximately(
-          convertHandler.convert(input[0], input[1]),
-          expected,
-          0.1
-        ); //0.1 tolerance
-      } catch (e) {
-        console.error(e);
-        return done(e);
-      }
+      assert.approximately(
+        convertHandler.convert(input[0], input[1]),
+        expected,
+        0.1
+      ); //0.1 tolerance
       done();
     });
 

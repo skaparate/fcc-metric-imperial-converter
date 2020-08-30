@@ -8,14 +8,6 @@
 
 const { init } = require("../server");
 
-class ValidationError extends Error {
-  constructor(msg, input, reason = "") {
-    super(msg);
-    this.input = input;
-    this.reason = reason;
-  }
-}
-
 /**
  * Controller in charge of converting between
  * metric and imperial units.
@@ -50,7 +42,6 @@ function ConvertHandler() {
       spell: "kilograms",
     },
   };
-  const regex = new RegExp(/([\d\.\/]+)?\s*([a-z]+)$/, "i");
 
   function inputToNumber(input) {
     console.debug("Input to number:", input);
@@ -58,90 +49,79 @@ function ConvertHandler() {
     try {
       num = parseFloat(input);
     } catch (e) {
-      throw new ValidationError("invalid number", input);
+      num = "invalid number";
     }
 
     console.debug("Parsed number:", num);
     return num;
   }
 
-  /**
-   * Parses the input data and converts it to an object with
-   * two properties:
-   *
-   * unit: the unit found on the data,
-   * number: the parsed number.
-   *
-   * @param {String} data The data to parse.
-   * @throws Error if the unit or number are not valid.
-   */
-  this.parse = function (data) {
-    console.debug("Parsing user input:", data);
+  function extractUnit(data) {
+    console.debug("Extracting unit:", data);
     if (!data) {
-      throw new ValidationError(
-        "invalid number and unit",
-        input,
-        "no data passed"
-      );
+      return "invalid unit";
     }
-
     const input = data.trim().toLowerCase();
-    const match = input.match(regex);
-    console.debug("Matched result:", match);
+    const match = input.match(/([a-z]+)$/);
+    console.debug("Matched unit:", match);
+    if (match !== null && match[1] && units.hasOwnProperty(match[1])) {
+      return match[1];
+    }
+    return "invalid unit";
+  }
 
-    if (!match) {
-      throw new ValidationError("invalid number and unit", input);
+  function extractNumber(data) {
+    console.debug("Extracting number:", data);
+    if (!data) {
+      return "invalid number";
     }
 
-    if (!units.hasOwnProperty(match[2])) {
-      throw new ValidationError("invalid unit", input);
-    }
+    const match = data.match(/^([\d\.\/]+)/);
+    console.debug("Matched number:", match);
 
-    console.debug("Unit:", match[2]);
-    let ms = 1;
-
-    if (match[1]) {
+    if (match !== null && match[1]) {
       const slashIndex = match[1].indexOf("/");
+
       if (slashIndex === 0) {
-        throw new ValidationError("invalid number", input, "empty fraction");
+        return "invalid number";
       }
+
       if (slashIndex > 0) {
         const split = match[1].split("/");
         if (split.length > 2) {
-          throw new ValidationError(
-            "invalid number",
-            input,
-            "more than 1 fraction"
-          );
+          return "invalid number";
         }
+
         const left = inputToNumber(split[0]);
         const right = inputToNumber(split[1]);
-        ms = left / right;
+        return left / right;
       } else {
-        ms = inputToNumber(match[1]);
+        return inputToNumber(match[1]);
       }
     }
-    const result = {
-      unit: match[2],
-      number: ms,
-    };
-    console.debug("Parsed result:", result);
-    return result;
+
+    console.debug("Returning default number");
+    return 1;
+  }
+
+  this.isError = function (input) {
+    return input === "invalid number" || input === "invalid unit";
   };
 
   this.getNum = function (input) {
-    return this.parse(input).number;
+    return extractNumber(input);
   };
 
   this.getUnit = function (input) {
-    return this.parse(input).unit;
+    return extractUnit(input);
   };
 
   this.getReturnUnit = function (initUnit) {
     const prop = units[initUnit];
+    console.debug("Returned unit prop:", prop);
     if (!prop) {
       console.error("The initial unit was not found:", initUnit);
-      throw new ValidationError("invalid unit", initUnit);
+      throw new Error("invalid unit");
     }
     return prop.convertsTo;
   };
@@ -149,7 +129,7 @@ function ConvertHandler() {
   this.spellOutUnit = function (unit) {
     const prop = units[unit];
     if (prop === undefined) {
-      throw new ValidationError("invalid unit", unit);
+      throw new Error("invalid unit");
     }
     return prop.spell;
   };
