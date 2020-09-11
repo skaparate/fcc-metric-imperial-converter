@@ -136,23 +136,27 @@ function ConvertHandler() {
 
   this.convert = function (initNum, initUnit) {
     const toUnit = this.getReturnUnit(initUnit);
+    let result;
 
     if (toUnit === "gal") {
-      return initNum / galToL;
+      result = initNum / galToL;
     }
     if (toUnit === "l") {
-      return initNum * galToL;
+      result = initNum * galToL;
     }
     if (toUnit === "mi") {
-      return initNum / miTokm;
+      result = initNum / miTokm;
     }
     if (toUnit === "km") {
-      return initNum * miTokm;
+      result = initNum * miTokm;
     }
     if (toUnit === "lbs") {
-      return initNum / lbsToKg;
+      result = initNum / lbsToKg;
     }
-    return initNum * lbsToKg;
+    if (toUnit === "kg") {
+      result = initNum * lbsToKg;
+    }
+    return Number(result.toFixed(5));
   };
 
   this.getString = function (initNum, initUnit, returnNum, returnUnit) {
