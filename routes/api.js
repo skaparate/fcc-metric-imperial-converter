@@ -16,15 +16,11 @@ module.exports = function (app) {
     const initUnit = convertHandler.getUnit(input);
     
     if (convertHandler.isError(initNum) && convertHandler.isError(initUnit)) {
-      return res.json({
-        error: "invalid number and unit",
-      });
+      return res.send("invalid number and unit");
     } else if (convertHandler.isError(initNum)) {
-      return res.json({
-        error: initNum,
-      });
+      return res.send(initNum);
     } else if (convertHandler.isError(initUnit)) {
-      return res.json({ error: initUnit });
+      return res.send(initUnit);
     }
 
     const returnUnit = convertHandler.getReturnUnit(initUnit);
